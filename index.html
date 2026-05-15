@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Khalil Jibran — Algorithmic Devotion</title>
+<meta name="description" content="Algorithmic Devotion by Dr Khalil Jibran. Calligraphic pieces produced by algorithmic engines. Based in London." />
+
+<!-- Open Graph / social sharing. Update og:url + og:image after first deploy. -->
+<meta property="og:title" content="Khalil Jibran — Algorithmic Devotion" />
+<meta property="og:description" content="Calligraphic pieces produced by algorithmic engines." />
+<meta property="og:type" content="website" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --paper:   #ede9dd;   /* cream paper — only non-black colour */
+    --ink:     #000000;   /* pure ink */
+    --ink-soft:#000000;   /* secondary text — same colour, italic distinguishes */
+    --rule:    #000000;   /* hairlines */
+    --accent:  #000000;   /* links + accents */
+    --serif:   'Crimson Pro', 'EB Garamond', Georgia, serif;
+    --display: 'Cormorant Garamond', 'Crimson Pro', Georgia, serif;
+    --arabic:  'Amiri', serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font: 17px/1.55 var(--serif);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Very faint paper-grain texture via two overlaid linear gradients. Cheap,
+     doesn't need an image file, looks like aged stock under raking light. */
+  body {
+    background-image:
+      linear-gradient(120deg, rgba(0,0,0,0.012) 1px, transparent 1px),
+      linear-gradient(60deg,  rgba(0,0,0,0.012) 1px, transparent 1px);
+    background-size: 6px 6px, 8px 8px;
+  }
+
+  /* ============================================================
+     Header — name as titlepage, role as caption, social as plate.
+     Centred, generous whitespace, gold rules flanking the title.
+     ============================================================ */
+  header.hero {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 96px 32px 24px;
+    text-align: center;
+  }
+  .hero .basmala {
+    font-family: var(--arabic);
+    direction: rtl;
+    color: var(--accent);
+    font-size: 28px;
+    margin-bottom: 24px;
+    opacity: 0.85;
+    letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(20px, 2.4vw, 28px);
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+  }
+  .hero .role {
+    margin-top: 14px;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 18px;
+  }
+  .hero .rules {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 28px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+  .hero .rules::before, .hero .rules::after {
+    content: '';
+    height: 1px;
+    width: 60px;
+    background: var(--rule);
+  }
+  .hero .social {
+    margin-top: 28px;
+  }
+  .hero .social a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 0 2px 1px;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .hero .social a:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
+
+  /* ============================================================
+     Engine sections — each is a chapter with a small numeral + title,
+     short Arabic / English tagline, and a responsive grid of videos.
+     ============================================================ */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 16px 32px 96px;
+  }
+  section.engine {
+    margin-top: 96px;
+  }
+  section.engine:first-of-type { margin-top: 0; }
+
+  .engine-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .engine-num {
+    font-family: var(--display);
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    flex-shrink: 0;
+  }
+  .engine-title {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .engine-desc {
+    margin: 12px auto 28px;
+    color: var(--ink-soft);
+    max-width: 100ch;
+    font-size: 16px;
+    text-align: center;
+  }
+  .engine-desc p + p { margin-top: 14px; }
+
+  .video-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+  }
+  /* Fixed-width tiles so the layout is uniform and any orphan items
+     on the last row sit centred under the rows above instead of being
+     pinned to the left. Wrap is automatic on narrow viewports. */
+  .video-box {
+    flex: 0 0 280px;
+  }
+  /* Aspect-ratio rules per common formats. Each <video> declares its
+     aspect via a data-aspect attribute so we can pick the right box.
+     Defaults to 1:1 if unspecified. */
+  .video-box {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    aspect-ratio: 1 / 1;
+  }
+  .video-box[data-aspect="9:16"]  { aspect-ratio: 9 / 16; }
+  .video-box[data-aspect="4:5"]   { aspect-ratio: 4 / 5; }
+  .video-box[data-aspect="16:9"]  { aspect-ratio: 16 / 9; }
+  .video-box video,
+  .video-box img.poster-overlay {
+    /* 2-pixel bleed on each side then transform-recentered so any
+       1-px black edge in the encoded MP4 (a known artefact when the
+       capture canvas dims aren't strictly even) gets clipped by the
+       parent's overflow:hidden. */
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    margin: -2px 0 0 -2px;
+    object-fit: cover;
+    display: block;
+  }
+  /* Pre-rendered JPEG poster sits on top of the video. Idle = visible;
+     hover fades it out so the playing video shows through underneath.
+     Eliminates browser-side seek/decode timing for the poster frame. */
+  .video-box img.poster-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    transition: opacity 0.18s;
+  }
+  .video-box:hover img.poster-overlay { opacity: 0; }
+  .video-box {
+    cursor: zoom-in;
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.28s ease-out;
+    transform-origin: center center;
+  }
+  /* Hovered tile scales up in place and lifts above its siblings, so a
+     viewer can read the piece at a much larger size before deciding to
+     click through to the full-screen lightbox. Adjacent tiles are
+     occluded; the z-index keeps the expanded one on top. */
+  .video-box:hover {
+    transform: scale(2.4);
+    z-index: 10;
+    box-shadow: 0 32px 96px rgba(20, 16, 12, 0.55);
+  }
+
+  /* ============================================================
+     Lightbox — full-viewport modal that opens when a video tile is
+     clicked. Backdrop is the dark version of the paper colour so it
+     reads as the same world inverted. Esc / backdrop / × all close.
+     ============================================================ */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 16, 12, 0.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    z-index: 1000;
+    cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox-inner {
+    position: relative;
+    max-width: 95vw;
+    max-height: 90vh;
+    cursor: default;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.7);
+  }
+  .lightbox video {
+    display: block;
+    max-width: 95vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    background: #000;
+  }
+  /* Close glyph — anchored to the viewport, not the video. Light
+     hairline weight, generous hit area via padding, hover dims it. */
+  .lightbox-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: transparent;
+    border: 0;
+    color: rgba(244, 236, 220, 0.55);
+    font: 300 36px/1 var(--display), serif;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .lightbox-close:hover { color: var(--paper); }
+  /* Caption beneath each video. Optional; only renders if provided. */
+  .video-caption {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* ============================================================
+     Footer — minimal colophon. Year auto-fills from JS.
+     ============================================================ */
+  footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 32px 56px;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 13px;
+  }
+  footer .colophon {
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  footer a:hover { color: var(--ink); }
+
+  /* ============================================================
+     Responsive — collapse padding, single column on phone.
+     ============================================================ */
+  @media (max-width: 640px) {
+    header.hero { padding: 56px 20px 16px; }
+    main { padding: 12px 20px 64px; }
+    section.engine { margin-top: 64px; }
+    .video-grid { gap: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Khalil Jibran</h1>
+  <div class="role">Algorithmic Devotion. Based in London.</div>
+  <div class="social">
+    <a id="instaLink" href="https://www.instagram.com/" target="_blank" rel="noopener">Instagram ↗</a>
+  </div>
+</header>
+
+<main id="gallery"></main>
+
+<!-- Lightbox overlay — populated dynamically on tile click. -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" aria-label="close">×</button>
+    <video id="lightboxVideo" autoplay loop playsinline controls></video>
+  </div>
+</div>
+
+<footer>
+  <div class="colophon">All works generated algorithmically.</div>
+</footer>
+
+<script>
+// ============================================================
+// CONFIG — edit this once your video folder is in place.
+//
+// Each engine entry points to a folder under `./videos/` (or wherever
+// you drop the assets — adjust `folder` paths as you like) and lists
+// the video filenames inside that folder. Filenames don't need to be
+// sorted; order in the array is the display order on the page.
+//
+// `aspect` per-engine is the *default* aspect for that engine's
+// videos; an individual video can override via the [filename, aspect]
+// tuple form (see Engine 3 example below).
+// ============================================================
+const INSTAGRAM_HANDLE = 'kjr_217';   // <-- replace with your handle (no @)
+
+const ENGINES = [
+  {
+    number: '01',
+    title: 'Signals',
+    poster: 'start',
+    description: `I've started exploring some algorithmic concepts I studied during my PhD in combination with the Islamic art tradition I grew up around. Most of Islamic art is heavily mathematical and geometric, yet modern algorithmic concepts haven't really been pointed at it directly. That gap has always felt interesting to me.
+
+This engine is inspired by waves and signals, which sat at the centre of my PhD work on signal processing for navigation. The job there is essentially to take the simultaneous, faint, partially-corrupted carrier waves transmitted by signal transmitters and decompose them — pulling a position estimate out of what looks, on first glance, like noise. Stacked sinusoids at different frequencies, amplitudes and phases describe arbitrarily complex signals; the receiver's job is to determine where you are. I wanted to take the same systems and use it instead as a visual instrument, a way of unveiling text rather than localising a body.
+
+This is the first of several engines I've been building.
+
+— Dr Khalil Jibran 4/26`,
+    folder: 'waveform',
+    aspect: '1:1',
+    videos: [
+      'waveform-1777208478044.mp4',
+      'waveform-1777209930566.mp4',
+      'waveform-1777210479907.mp4',
+      'waveform-1777287651255.mp4',
+      'waveform-1777942816704.mp4',
+    ],
+  },
+  {
+    number: '02',
+    title: 'Dijkstra 99',
+    poster: 'end',
+    description: `This engine is built around Dijkstra's algorithm applied to the 99 names of Allah. From a source node in a weighted graph it gives you the shortest path to every other reachable node, expanding a wavefront outward and settling each node as it arrives. The tree of parent pointers it leaves behind is the shortest-path tree: every node's optimal route home, drawn at once. This algorithm is very commonly used to find the shortest path for mapping or navigation. I wrote a small dissertation on this algorithm in the past.
+
+The engine samples points across this composition, builds a k-NN graph, then runs Dijkstra from random sources and draws the resulting trees. There are two styles:
+
+Interior — the interior regime where nodes live strictly inside the names and Dijkstra's explores inside.
+
+Obstacle — nodes scatter through the negative space, edges that cross the names are removed, the tree threads between the names.
+
+I think the combination of Dijkstra's algorithm and the 99 names of Allah turned out beautifully and intend on revisiting this algorithm.
+
+— Dr Khalil Jibran 5/26`,
+    folder: 'dijkstra',
+    aspect: '1:1',
+    videos: [
+      'dijkstra-hq-1778774846774.mp4',
+      'dijkstra-hq-1778775123507.mp4',
+      'dijkstra-hq-1778776141972.mp4',
+      'dijkstra-hq-1778801642199.mp4',
+      'dijkstra-hq-1778802369758.mp4',
+      'dijkstra-hq-1778802524405.mp4',
+      'dijkstra-hq-1778802849637.mp4',
+      'dijkstra-hq-1778805637890.mp4',
+    ],
+  },
+  // To add a new engine, copy one of the entries above. Empty
+  // `videos: []` arrays render a "(pieces coming soon)" placeholder
+  // — useful while you're staging the site.
+];
+
+// ============================================================
+// Render — builds <section> blocks for each engine + a responsive
+// grid of autoplay-muted-loop <video> tags inside.
+// ============================================================
+const gallery = document.getElementById('gallery');
+const fragment = document.createDocumentFragment();
+
+// Newest engines first — display in descending order without mutating
+// the source array (so the config stays human-readable as 01, 02, …).
+for (const eng of [...ENGINES].reverse()) {
+  const sec = document.createElement('section');
+  sec.className = 'engine';
+
+  // Head: numeral + title (split for visual hierarchy)
+  const head = document.createElement('div');
+  head.className = 'engine-head';
+  head.innerHTML = `
+    <div class="engine-num">Engine ${eng.number}</div>
+    <div class="engine-title">${eng.title}</div>
+  `;
+  sec.appendChild(head);
+
+  if (eng.description) {
+    const desc = document.createElement('div');
+    desc.className = 'engine-desc';
+    // Split on blank lines, render each chunk as its own paragraph.
+    // textContent on a <p> keeps things safe — no HTML injection from
+    // the config.
+    const paras = eng.description.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+    for (const p of paras) {
+      const el = document.createElement('p');
+      el.textContent = p;
+      desc.appendChild(el);
+    }
+    sec.appendChild(desc);
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'video-grid';
+
+  if (!eng.videos.length) {
+    const stub = document.createElement('div');
+    stub.className = 'video-caption';
+    stub.textContent = '(pieces coming soon)';
+    grid.appendChild(stub);
+  } else {
+    for (const entry of eng.videos) {
+      // Entry can be either a string (filename) or [filename, aspect]
+      const [fname, aspect] = Array.isArray(entry) ? entry : [entry, eng.aspect];
+      const box = document.createElement('div');
+      box.className = 'video-box';
+      box.dataset.aspect = aspect || eng.aspect || '1:1';
+      const v = document.createElement('video');
+      v.src = `${eng.folder}/${fname}`;
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.dataset.poster = eng.poster || 'start';
+      // Pre-rendered JPEG overlay for engines that want the *end* frame
+      // as the preview. The JPEG (one per mp4, generated via ffmpeg into
+      // the engine's posters/ folder) is always shown when idle and is
+      // CSS-faded out on hover to reveal the playing video. This sidesteps
+      // every in-browser timing hazard with seek-to-end.
+      if (eng.poster === 'end') {
+        const base = fname.replace(/\.[^.]+$/, '');
+        const img = document.createElement('img');
+        img.className = 'poster-overlay';
+        img.src = `${eng.folder}/posters/${base}.jpg`;
+        img.alt = '';
+        box.appendChild(img);
+      } else {
+        // Cyclic content (signals): a small seek shows the first frame.
+        v.addEventListener('loadedmetadata', () => {
+          if (v.paused) v.currentTime = 0.001;
+        }, { once: true });
+      }
+      box.appendChild(v);
+      grid.appendChild(box);
+    }
+  }
+
+  sec.appendChild(grid);
+  fragment.appendChild(sec);
+}
+gallery.appendChild(fragment);
+
+// Instagram link.
+const ig = document.getElementById('instaLink');
+if (INSTAGRAM_HANDLE && INSTAGRAM_HANDLE !== 'your_handle_here') {
+  ig.href = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
+}
+
+// Play-on-interaction model: the grid is a wall of still posters (each
+// video paused at its first frame). Motion is invoked deliberately.
+//
+//   - Desktop (true hover): mouseenter plays, mouseleave pauses + rewinds.
+//     Avoids the shimmer that comes from the browser scaling many small
+//     videos in parallel.
+//   - Touch (no hover): the IntersectionObserver plays whichever tile is
+//     mostly visible in the viewport and pauses everything else, since
+//     hover events don't reach a fingertip.
+//   - All devices: click opens the full-size lightbox.
+const canHover = matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+// Per-tile rest position. Reads the v.dataset.poster flag set when the
+// tile was created — 'start' (first frame) or 'end' (final frame).
+function restAtPoster(v) {
+  v.pause();
+  if (v.dataset.poster === 'end' && isFinite(v.duration) && v.duration > 0.1) {
+    v.currentTime = Math.max(0, v.duration - 0.05);
+  } else {
+    v.currentTime = 0.001;
+  }
+}
+
+document.querySelectorAll('.video-box').forEach(box => {
+  const v = box.querySelector('video');
+  if (!v) return;
+  if (canHover) {
+    box.addEventListener('mouseenter', () => {
+      // Play the animation from the start each time on hover so viewers
+      // see the whole build-up rather than starting at the end-frame and
+      // looping straight back to a blank canvas.
+      v.currentTime = 0;
+      v.play().catch(() => {});
+      // Set transform-origin per-tile so edge tiles scale inward
+      // instead of off the viewport. Threshold scales with the hover
+      // scale factor — at 2.4× each side overhangs 0.7 box-widths.
+      const HOVER_SCALE = 2.4;
+      const OVERHANG = (HOVER_SCALE - 1) / 2;
+      const r = box.getBoundingClientRect();
+      const vw = window.innerWidth;
+      let ox = '50%';
+      if (r.left < r.width * OVERHANG)            ox = '0%';
+      else if (r.right > vw - r.width * OVERHANG) ox = '100%';
+      box.style.transformOrigin = `${ox} center`;
+    });
+    box.addEventListener('mouseleave', () => restAtPoster(v));
+  }
+});
+
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    const v = e.target.querySelector('video');
+    if (!v) continue;
+    if (canHover) {
+      if (!e.isIntersecting) restAtPoster(v);
+    } else {
+      // Touch: visible tile plays from the start, others rest at end.
+      if (e.isIntersecting) {
+        v.currentTime = 0;
+        v.play().catch(() => {});
+      } else {
+        restAtPoster(v);
+      }
+    }
+  }
+}, { rootMargin: '0px', threshold: 0.5 });
+document.querySelectorAll('.video-box').forEach(b => io.observe(b));
+
+// ============================================================
+// Lightbox — click a tile to open it large; Esc / backdrop / × close.
+// The lightbox video is created on-the-fly with the same src as the
+// clicked tile, so the grid video keeps its own playback state.
+// ============================================================
+const lightbox = document.getElementById('lightbox');
+const lightboxVideo = document.getElementById('lightboxVideo');
+const lightboxClose = document.getElementById('lightboxClose');
+
+function openLightbox(src) {
+  lightboxVideo.src = src;
+  lightboxVideo.muted = false;          // unmute in fullscreen
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  lightboxVideo.play().catch(() => {});
+}
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden', 'true');
+  lightboxVideo.pause();
+  lightboxVideo.removeAttribute('src');
+  lightboxVideo.load();                  // release the file handle
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.video-box').forEach(box => {
+  box.addEventListener('click', () => {
+    const v = box.querySelector('video');
+    if (!v || !v.src) return;
+    openLightbox(v.src);
+  });
+});
+// Click on backdrop (the .lightbox itself but not the inner content) closes.
+lightbox.addEventListener('click', (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+lightboxClose.addEventListener('click', closeLightbox);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+});
+</script>
+</body>
+</html>
