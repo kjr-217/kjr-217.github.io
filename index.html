@@ -162,6 +162,47 @@
   }
   .engine-desc p + p { margin-top: 14px; }
 
+  /* Subsection — smaller header sat inside an engine block, used for
+     experiments / sketches that live alongside the finished pieces but
+     read as a separate body of work. Centred italic label flanked by
+     short hairlines, narrower tiles in the grid below. */
+  .subsection-head {
+    margin: 48px auto 4px;
+    text-align: center;
+    font-family: var(--display);
+    font-style: italic;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    position: relative;
+    padding: 0 24px;
+  }
+  .subsection-head::before,
+  .subsection-head::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 40px;
+    height: 1px;
+    background: var(--rule);
+    opacity: 0.5;
+  }
+  .subsection-head::before { right: calc(50% + 80px); }
+  .subsection-head::after  { left:  calc(50% + 80px); }
+  .subsection-note {
+    margin: 0 auto 20px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-style: italic;
+    font-size: 13px;
+    opacity: 0.7;
+    max-width: 60ch;
+    padding: 0 24px;
+  }
+  .video-grid.subsection-grid .video-box { flex: 0 0 200px; }
+
   .video-grid {
     display: flex;
     flex-wrap: wrap;
@@ -400,6 +441,19 @@ I think the combination of Dijkstra's algorithm and the 99 names of Allah turned
       'dijkstra-hq-1778802849637.mp4',
       'dijkstra-hq-1778805637890.mp4',
     ],
+    // Small experiments / sketches that live alongside the finished
+    // dijkstra pieces. Files go in <folder>/experiments/, posters in
+    // <folder>/experiments/posters/. Filenames listed in display order.
+    experimentsLabel: 'Sketchbook',
+    experimentsNote: 'Smaller experiments and works-in-progress on the dijkstra engine.',
+    experimentsFolder: 'dijkstra/experiments',
+    experiments: [
+      'dijkstra-hq-1779231555071.mp4',
+      'dijkstra-hq-1779231657605.mp4',
+      'dijkstra-hq-1779231743781.mp4',
+      'dijkstra-hq-1779232463355.mp4',
+      'dijkstra-hq-1779290944788.mp4',
+    ],
   },
   // To add a new engine, copy one of the entries above. Empty
   // `videos: []` arrays render a "(pieces coming soon)" placeholder
@@ -443,6 +497,43 @@ for (const eng of [...ENGINES].reverse()) {
     sec.appendChild(desc);
   }
 
+  // Tile factory — same DOM shape regardless of whether the tile is in
+  // the main grid or the experiments subsection. Folder is passed in so
+  // experiments can live at `<engineFolder>/experiments/` etc.
+  function buildTile(entry, folder) {
+    const [fname, aspect] = Array.isArray(entry) ? entry : [entry, eng.aspect];
+    const box = document.createElement('div');
+    box.className = 'video-box';
+    box.dataset.aspect = aspect || eng.aspect || '1:1';
+    const v = document.createElement('video');
+    v.src = `${folder}/${fname}`;
+    v.muted = true;
+    v.loop = true;
+    v.playsInline = true;
+    v.preload = 'auto';
+    v.dataset.poster = eng.poster || 'start';
+    // Pre-rendered JPEG overlay for engines that want the *end* frame
+    // as the preview. The JPEG (one per mp4, generated via ffmpeg into
+    // the engine's posters/ folder) is always shown when idle and is
+    // CSS-faded out on hover to reveal the playing video. This sidesteps
+    // every in-browser timing hazard with seek-to-end.
+    if (eng.poster === 'end') {
+      const base = fname.replace(/\.[^.]+$/, '');
+      const img = document.createElement('img');
+      img.className = 'poster-overlay';
+      img.src = `${folder}/posters/${base}.jpg`;
+      img.alt = '';
+      box.appendChild(img);
+    } else {
+      // Cyclic content (signals): a small seek shows the first frame.
+      v.addEventListener('loadedmetadata', () => {
+        if (v.paused) v.currentTime = 0.001;
+      }, { once: true });
+    }
+    box.appendChild(v);
+    return box;
+  }
+
   const grid = document.createElement('div');
   grid.className = 'video-grid';
 
@@ -452,43 +543,39 @@ for (const eng of [...ENGINES].reverse()) {
     stub.textContent = '(pieces coming soon)';
     grid.appendChild(stub);
   } else {
-    for (const entry of eng.videos) {
-      // Entry can be either a string (filename) or [filename, aspect]
-      const [fname, aspect] = Array.isArray(entry) ? entry : [entry, eng.aspect];
-      const box = document.createElement('div');
-      box.className = 'video-box';
-      box.dataset.aspect = aspect || eng.aspect || '1:1';
-      const v = document.createElement('video');
-      v.src = `${eng.folder}/${fname}`;
-      v.muted = true;
-      v.loop = true;
-      v.playsInline = true;
-      v.preload = 'auto';
-      v.dataset.poster = eng.poster || 'start';
-      // Pre-rendered JPEG overlay for engines that want the *end* frame
-      // as the preview. The JPEG (one per mp4, generated via ffmpeg into
-      // the engine's posters/ folder) is always shown when idle and is
-      // CSS-faded out on hover to reveal the playing video. This sidesteps
-      // every in-browser timing hazard with seek-to-end.
-      if (eng.poster === 'end') {
-        const base = fname.replace(/\.[^.]+$/, '');
-        const img = document.createElement('img');
-        img.className = 'poster-overlay';
-        img.src = `${eng.folder}/posters/${base}.jpg`;
-        img.alt = '';
-        box.appendChild(img);
-      } else {
-        // Cyclic content (signals): a small seek shows the first frame.
-        v.addEventListener('loadedmetadata', () => {
-          if (v.paused) v.currentTime = 0.001;
-        }, { once: true });
-      }
-      box.appendChild(v);
-      grid.appendChild(box);
-    }
+    for (const entry of eng.videos) grid.appendChild(buildTile(entry, eng.folder));
   }
 
   sec.appendChild(grid);
+
+  // Experiments subsection — optional. Renders a smaller-tile grid under
+  // the main one with its own italic head + a short note. Drop new mp4s
+  // into the engine's `experiments/` folder and list them in the array.
+  if (eng.experiments) {
+    const subFolder = eng.experimentsFolder || `${eng.folder}/experiments`;
+    const subHead = document.createElement('div');
+    subHead.className = 'subsection-head';
+    subHead.textContent = eng.experimentsLabel || 'Sketchbook';
+    sec.appendChild(subHead);
+    if (eng.experimentsNote) {
+      const note = document.createElement('div');
+      note.className = 'subsection-note';
+      note.textContent = eng.experimentsNote;
+      sec.appendChild(note);
+    }
+    const subGrid = document.createElement('div');
+    subGrid.className = 'video-grid subsection-grid';
+    if (!eng.experiments.length) {
+      const stub = document.createElement('div');
+      stub.className = 'video-caption';
+      stub.textContent = '(experiments coming soon)';
+      subGrid.appendChild(stub);
+    } else {
+      for (const entry of eng.experiments) subGrid.appendChild(buildTile(entry, subFolder));
+    }
+    sec.appendChild(subGrid);
+  }
+
   fragment.appendChild(sec);
 }
 gallery.appendChild(fragment);
