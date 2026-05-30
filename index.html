@@ -201,7 +201,6 @@
     max-width: 60ch;
     padding: 0 24px;
   }
-  .video-grid.subsection-grid .video-box { flex: 0 0 200px; }
 
   .video-grid {
     display: flex;
@@ -211,9 +210,18 @@
   }
   /* Fixed-width tiles so the layout is uniform and any orphan items
      on the last row sit centred under the rows above instead of being
-     pinned to the left. Wrap is automatic on narrow viewports. */
-  .video-box {
+     pinned to the left. Wrap is automatic on narrow viewports. The
+     .tile wrapper carries the flex sizing so an optional per-piece
+     caption sits below the box without being affected by the box's
+     hover-scale transform. */
+  .tile {
     flex: 0 0 280px;
+    display: flex;
+    flex-direction: column;
+  }
+  .video-grid.subsection-grid .tile { flex: 0 0 200px; }
+  .video-box {
+    width: 100%;
   }
   /* Aspect-ratio rules per common formats. Each <video> declares its
      aspect via a data-aspect attribute so we can pick the right box.
@@ -455,6 +463,25 @@ I think the combination of Dijkstra's algorithm and the 99 names of Allah turned
       'dijkstra-hq-1779290944788.mp4',
     ],
   },
+  {
+    number: '03',
+    title: 'Wayfinding',
+    poster: 'end',
+    description: `This engine applies a grid filter to a tile mosaic.
+
+A grid filter is the discrete-state cousin of a particle filter, a continuous-state estimator used in navigation for tracking position from noisy measurements. In these pieces tiles randomly search the canvas until they find their way to predetermined locations. If a tile has spent a certain amount of time without finding its way, a resampling step moves it onto a tile that has already found its own.
+
+Each piece is made to display the importance of a particular feature of the algorithm, and there are some nice parallels to real life.
+
+— Dr Khalil Jibran 5/26`,
+    folder: 'murmuration',
+    aspect: '1:1',
+    videos: [
+      { file: 'truchet-1780152397349.mp4', desc: 'This piece demonstrates the importance of resampling. None of the tiles resample, so they explore the canvas entirely at random and never use information from tiles that have already found their way.' },
+      { file: 'truchet-1780152737180.mp4', desc: 'This piece demonstrates the importance of exploration and the downside of too much resampling. The resampling is so aggressive that the tiles never get enough time to explore. They stay tethered to the first tiles to settle rather than searching for their own way.' },
+      { file: 'truchet-1780152170974.mp4', desc: 'This piece demonstrates the importance of balancing resampling with sufficient exploration. The resampling lets tiles learn from those that have already found their way, while still giving them enough time to wander and find their own.' },
+    ],
+  },
   // To add a new engine, copy one of the entries above. Empty
   // `videos: []` arrays render a "(pieces coming soon)" placeholder
   // — useful while you're staging the site.
@@ -501,7 +528,20 @@ for (const eng of [...ENGINES].reverse()) {
   // the main grid or the experiments subsection. Folder is passed in so
   // experiments can live at `<engineFolder>/experiments/` etc.
   function buildTile(entry, folder) {
-    const [fname, aspect] = Array.isArray(entry) ? entry : [entry, eng.aspect];
+    // Three entry forms supported:
+    //   'file.mp4'                       — bare filename, no per-tile data
+    //   ['file.mp4', 'aspect']           — legacy tuple for aspect override
+    //   { file, aspect?, desc? }         — full object, with optional caption
+    let fname, aspect, desc;
+    if (typeof entry === 'string') {
+      fname = entry;
+    } else if (Array.isArray(entry)) {
+      [fname, aspect] = entry;
+    } else {
+      fname  = entry.file;
+      aspect = entry.aspect;
+      desc   = entry.desc;
+    }
     const box = document.createElement('div');
     box.className = 'video-box';
     box.dataset.aspect = aspect || eng.aspect || '1:1';
@@ -531,7 +571,18 @@ for (const eng of [...ENGINES].reverse()) {
       }, { once: true });
     }
     box.appendChild(v);
-    return box;
+    // Wrap the box in a .tile so an optional caption can sit below
+    // without inheriting the box's hover-scale transform.
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.appendChild(box);
+    if (desc) {
+      const caption = document.createElement('div');
+      caption.className = 'video-caption';
+      caption.textContent = desc;
+      tile.appendChild(caption);
+    }
+    return tile;
   }
 
   const grid = document.createElement('div');
